@@ -29,7 +29,6 @@ Slasher is a specialized path traversal vulnerability scanner that tests URLs us
 ### Prerequisites
 
 - Go 1.21 or later
-- Chrome/Chromium browser
 
 ### Quick Install
 
@@ -43,7 +42,7 @@ go mod download
 go build
 
 # Run the tool
-./slasher -url http://your-target-url
+./slasher -u https://example.com/path/to/test
 ```
 
 ### Using Go Install
@@ -56,17 +55,24 @@ go install github.com/fractalized-cyber/slasher@latest
 
 Basic usage:
 ```bash
-slasher -url http://your-target-url
+slasher -u <url_or_file>
 ```
 
 Options:
-- `-url`: URL to test or file containing URLs (one per line)
+- `-u <url_or_file>`: URL to test or file containing URLs (one per line)
 - `-follow`: Follow redirects (default: false)
 - `-version`: Show version information
 
-Example:
+Examples:
 ```bash
-slasher -url https://example.com/path/to/test -follow
+# Test a single URL
+slasher -u https://example.com/path/to/test
+
+# Test multiple URLs from a file
+slasher -u urls.txt
+
+# Test with redirect following enabled
+slasher -follow -u https://example.com/path/to/test
 ```
 
 ## Output
@@ -76,34 +82,6 @@ The tool reports differences in response sizes and status codes that might indic
 - Response sizes
 - Status codes
 - Redirect chains (if any)
-
-## Configuration
-
-The tool uses `patterns.json` for configuring detection patterns. You can modify this file to add or remove patterns:
-
-```json
-{
-  "patterns": [
-    {
-      "name": "AWS Access Key",
-      "pattern": "\\b(AKIA|ASIA)[A-Z0-9]{16}\\b",
-      "description": "AWS Access Key ID"
-    },
-    // Add more patterns here
-  ],
-  "ignoredPaths": [
-    "performance",
-    "localStorage",
-    "sessionStorage",
-    "indexedDB",
-    "webkitStorageInfo",
-    "chrome",
-    "document",
-    "history"
-  ],
-  "maxDepth": 5
-}
-```
 
 ## Contributing
 
