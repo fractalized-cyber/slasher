@@ -17,7 +17,7 @@ const version = "1.0.0"
 
 var (
 	followRedirects bool
-	urlInput       string
+	urlInput        string
 )
 
 // Banner text
@@ -90,6 +90,10 @@ OUTPUT:
   - Redirect chains (if any)
 `
 
+func printHelp() {
+	os.Stdout.Write([]byte(helpText))
+}
+
 var client = &http.Client{
 	Timeout: 10 * time.Second,
 	Transport: &http.Transport{
@@ -112,17 +116,17 @@ var client = &http.Client{
 }
 
 type Result struct {
-	URL            string
-	FinalURL       string
-	Label          string
-	Method         string
-	Size           int
-	Status         int
-	OriginalSize   int
-	OriginalStatus int
-	OriginalURL    string
+	URL              string
+	FinalURL         string
+	Label            string
+	Method           string
+	Size             int
+	Status           int
+	OriginalSize     int
+	OriginalStatus   int
+	OriginalURL      string
 	OriginalFinalURL string
-	Error          error
+	Error            error
 }
 
 // Helper to make GET or POST request and return size and status
@@ -141,15 +145,15 @@ func fetch(url string, method string) (int, int, string, error) {
 	client := &http.Client{
 		Timeout: 30 * time.Second, // Increased from 10 to 30 seconds
 		Transport: &http.Transport{
-			MaxIdleConns:           100,
-			MaxIdleConnsPerHost:    10,
-			IdleConnTimeout:        90 * time.Second,
-			DisableCompression:     true,
-			MaxConnsPerHost:        10,
+			MaxIdleConns:        100,
+			MaxIdleConnsPerHost: 10,
+			IdleConnTimeout:     90 * time.Second,
+			DisableCompression:  true,
+			MaxConnsPerHost:     10,
 			// Add timeouts for the transport
-			ResponseHeaderTimeout:   20 * time.Second,
-			ExpectContinueTimeout:  10 * time.Second,
-			TLSHandshakeTimeout:    10 * time.Second,
+			ResponseHeaderTimeout: 20 * time.Second,
+			ExpectContinueTimeout: 10 * time.Second,
+			TLSHandshakeTimeout:   10 * time.Second,
 		},
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
 			if !followRedirects {
@@ -200,7 +204,7 @@ func fetch(url string, method string) (int, int, string, error) {
 
 			// Get the final URL after any redirects
 			finalURL := resp.Request.URL.String()
-			
+
 			// Parse the URL to handle ports properly
 			if parsedURL, err := neturl.Parse(finalURL); err == nil {
 				// Remove default ports
@@ -229,14 +233,14 @@ func fetch(url string, method string) (int, int, string, error) {
 
 func processURL(original string, results chan<- Result, wg *sync.WaitGroup) {
 	variants := map[string]string{
-		"original":        original,
-		"trailing-slash":  original + "/",
-		"trailing-null":   original + "%00",
-		"trailing-dot":    original + "/.",
-		"double-slash":    original + "//",
-		"backslash":       strings.Replace(original, "/", "\\", -1),
-		"encoded-slash":   strings.Replace(original, "/", "%2f", -1),
-		"encoded-backslash": strings.Replace(original, "/", "%5c", -1),
+		"original":             original,
+		"trailing-slash":       original + "/",
+		"trailing-null":        original + "%00",
+		"trailing-dot":         original + "/.",
+		"double-slash":         original + "//",
+		"backslash":            strings.Replace(original, "/", "\\", -1),
+		"encoded-slash":        strings.Replace(original, "/", "%2f", -1),
+		"encoded-backslash":    strings.Replace(original, "/", "%5c", -1),
 		"double-encoded-slash": strings.Replace(original, "/", "%252f", -1),
 		"triple-encoded-slash": strings.Replace(original, "/", "%25252f", -1),
 	}
@@ -248,10 +252,10 @@ func processURL(original string, results chan<- Result, wg *sync.WaitGroup) {
 		if err != nil {
 			if !strings.Contains(err.Error(), "no Host in request URL") {
 				results <- Result{
-					URL: original,
-					Label: "original",
+					URL:    original,
+					Label:  "original",
 					Method: method,
-					Error: err,
+					Error:  err,
 				}
 			}
 			continue
@@ -266,10 +270,10 @@ func processURL(original string, results chan<- Result, wg *sync.WaitGroup) {
 			if err != nil {
 				if !strings.Contains(err.Error(), "no Host in request URL") {
 					results <- Result{
-						URL: variant,
-						Label: label,
+						URL:    variant,
+						Label:  label,
 						Method: method,
-						Error: err,
+						Error:  err,
 					}
 				}
 				continue
@@ -278,15 +282,15 @@ func processURL(original string, results chan<- Result, wg *sync.WaitGroup) {
 			// Show mismatches for successful responses and 500-level errors
 			if size != origSize && (status < 400 || status >= 500) {
 				results <- Result{
-					URL:            variant,
-					FinalURL:       finalURL,
-					Label:          label,
-					Method:         method,
-					Size:           size,
-					Status:         status,
-					OriginalSize:   origSize,
-					OriginalStatus: origStatus,
-					OriginalURL:    original,
+					URL:              variant,
+					FinalURL:         finalURL,
+					Label:            label,
+					Method:           method,
+					Size:             size,
+					Status:           status,
+					OriginalSize:     origSize,
+					OriginalStatus:   origStatus,
+					OriginalURL:      original,
 					OriginalFinalURL: origFinalURL,
 				}
 			}
@@ -346,7 +350,7 @@ func main() {
 
 	if urlInput == "" && len(os.Args) < 2 {
 		fmt.Printf(banner, version)
-		fmt.Println(helpText)
+		printHelp()
 		return
 	}
 

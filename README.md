@@ -42,7 +42,7 @@ go mod download
 go build
 
 # Run the tool
-./slasher -u https://example.com/path/to/test
+./slasher -u [url]
 ```
 
 ### Using Go Install
@@ -55,7 +55,7 @@ go install github.com/fractalized-cyber/slasher@latest
 
 Basic usage:
 ```bash
-slasher -u <url_or_file>
+slasher -u [url]
 ```
 
 Options:
@@ -66,13 +66,13 @@ Options:
 Examples:
 ```bash
 # Test a single URL
-slasher -u https://example.com/path/to/test
+slasher -u [url]
 
 # Test multiple URLs from a file
 slasher -u urls.txt
 
 # Test with redirect following enabled
-slasher -follow -u https://example.com/path/to/test
+slasher -follow -u [url]
 ```
 
 ## Output
